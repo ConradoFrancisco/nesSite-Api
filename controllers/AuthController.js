@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import getUserModelInstance from '../models/UserModel.js';
 import nodemailer from 'nodemailer';
+import { UserDto } from '../dtos/UserDto.js';
 
 dotenv.config();
 
@@ -30,14 +31,14 @@ class AuthController {
       if (!isPasswordValid) {
         return res.status(401).json({ message: 'Contraseña incorrecta' });
       }
-
+      
       const token = jwt.sign(
         { id: user.id, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRATION }
       );
-
-      res.json({ token });
+      const User = new UserDto(user)
+      res.json({User,token});
     } catch (error) {
       console.error('Error en login:', error.message);
       res.status(500).json({ message: 'Error del servidor' });
@@ -119,12 +120,14 @@ class AuthController {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const userId = decoded.userId;
-      console.log('deco',decoded)
-      const hashedPassword = await bcrypt.hash(password, 10);
+      if(userId){
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await this.userModel.updatePassword(userId, hashedPassword);
+        res.json({ message: 'Contraseña restablecida exitosamente' });
+      }else{
+        res.status(400).json({ message: 'token invalido' });
+      }
 
-      await this.userModel.updatePassword(userId, hashedPassword);
-
-      res.json({ message: 'Contraseña restablecida exitosamente' });
     } catch (error) {
       console.error('Error en resetPassword:', error.message);
       res.status(500).json({ message: 'Error del servidor' });
