@@ -1,5 +1,5 @@
 // models/NewsModel.js
-import connectDB from '../config/db.js';
+import connectDB from "../config/db.js";
 
 class NewsModel {
   constructor(connection) {
@@ -9,30 +9,30 @@ class NewsModel {
   async createImages(newsId, images) {
     try {
       const imageValues = images.map((image) => [newsId, image.url]);
-  
+
       const [result] = await this.connection.query(
         "INSERT INTO images (newsId, url) VALUES ?",
         [imageValues]
       );
-  
-      return result; 
+
+      return result;
     } catch (error) {
       console.error("Error al insertar imágenes:", error);
-      throw error; 
+      throw error;
     }
   }
-  
-  async createNews(title, content) {
+
+  async createNews(title, content,author,date) {
     try {
       const [result] = await this.connection.query(
-        "INSERT INTO news (title, content) VALUES (?, ?)",
-        [title, content]
+        "INSERT INTO news (title, content,author,date) VALUES (?, ?, ?, ?)",
+        [title, content,author,date]
       );
-  
-      return result.insertId; 
+
+      return result.insertId;
     } catch (error) {
       console.error("Error al crear noticia:", error);
-      throw error; 
+      throw error;
     }
   }
   // Obtener todas las noticias con sus imágenes
@@ -45,7 +45,7 @@ class NewsModel {
     );
     return rows.map((row) => ({
       ...row,
-      images: row.images ? row.images.split(',') : [],
+      images: row.images ? row.images.split(",") : [],
     }));
   }
 
@@ -65,15 +65,15 @@ class NewsModel {
     const row = rows[0];
     return {
       ...row,
-      images: row.images ? row.images.split(',') : [],
+      images: row.images ? row.images.split(",") : [],
     };
   }
 
   // Actualizar una noticia
-  async updateNews(id, title, content) {
+  async updateNews(id, title, content, author, date) {
     const [result] = await this.connection.execute(
-      'UPDATE news SET title = ?, content = ? WHERE id = ?',
-      [title, content, id]
+      "UPDATE news SET title = ?, content = ? , author = ?, date = ? WHERE id = ? ",
+      [title, content, author, date, id]
     );
     return result;
   }
@@ -81,8 +81,16 @@ class NewsModel {
   // Eliminar una noticia
   async deleteNews(id) {
     const [result] = await this.connection.execute(
-      'DELETE FROM news WHERE id = ?',
+      "DELETE FROM news WHERE id = ?",
       [id]
+    );
+    return result;
+  }
+
+  async setState(status,id) {
+    const [result] = await this.connection.execute(
+      "UPDATE news SET status = ? WHERE id = ?",
+      [status,id]
     );
     return result;
   }
@@ -90,7 +98,10 @@ class NewsModel {
   // Método para obtener todas las imágenes de una noticia por su ID
   async getImagesByNewsId(newsId) {
     try {
-      const [images] = await this.connection.query("SELECT url FROM images WHERE newsId = ?", [newsId]);
+      const [images] = await this.connection.query(
+        "SELECT url FROM images WHERE newsId = ?",
+        [newsId]
+      );
       return images.map((img) => img.url);
     } catch (error) {
       console.error("Error al obtener imágenes por ID de noticia:", error);
@@ -101,7 +112,10 @@ class NewsModel {
   // Método para eliminar una imagen por su URL
   async deleteImageByUrl(url) {
     try {
-      const [result] = await this.connection.execute("DELETE FROM images WHERE url = ?", [url]);
+      const [result] = await this.connection.execute(
+        "DELETE FROM images WHERE url = ?",
+        [url]
+      );
       return result;
     } catch (error) {
       console.error("Error al eliminar la imagen por URL:", error);
@@ -109,7 +123,6 @@ class NewsModel {
     }
   }
 }
-
 
 export default async function getNewsModelInstance() {
   const connection = await connectDB();
