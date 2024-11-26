@@ -49,16 +49,22 @@ class NewsController {
   };
 
   // Método para obtener todas las noticias
-  getAll = async (req, res, next) => {
+  async getAll(req, res, next) {
     try {
-      const newsList = await this.newsModel.getAllNews();
-      res.json(newsList);
+      const offset = parseInt(req.query.offset, 10) || 0;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const title = req.query.title || undefined;
+      const status = req.query.status !== undefined ? parseInt(req.query.status, 10) : undefined;
+      const startDate = req.query.startDate || undefined;
+      const endDate = req.query.endDate || undefined;
+  
+      const { news, total } = await this.newsModel.getAllNews(offset, limit, title, status, startDate, endDate);
+  
+      res.json({ noticias:news, total });
     } catch (error) {
       next(error);
     }
-  };
-
-  // Método para obtener una noticia por ID
+  }
   getById = async (req, res, next) => {
     try {
       const id = parseInt(req.params.id, 10);
@@ -230,6 +236,10 @@ class NewsController {
     }
   };
 }
+
+  // Método para obtener una noticia por ID
+ 
+
 
 // Factory para crear la instancia del controlador
 export async function createNewsController() {

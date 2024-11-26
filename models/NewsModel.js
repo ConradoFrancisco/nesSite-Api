@@ -36,18 +36,63 @@ class NewsModel {
     }
   }
   // Obtener todas las noticias con sus imágenes
-  async getAllNews() {
-    const [rows] = await this.connection.query(
-      `SELECT n.*, GROUP_CONCAT(i.url) AS images
-       FROM news n
-       LEFT JOIN images i ON n.id = i.newsId
-       GROUP BY n.id`
-    );
-    return rows.map((row) => ({
-      ...row,
-      images: row.images ? row.images.split(",") : [],
-    }));
+  async getAllNews(offset, limit, title, status, startDate, endDate) {
+    const conditions = [];
+    const params = [];
+  
+    if (title) {
+      conditions.push("n.title LIKE ?");
+      params.push(`%${title}%`);
+    }
+  
+    if (status !== undefined) {
+      conditions.push("n.status = ?");
+      params.push(status);
+    }
+  
+    if (startDate) {
+      conditions.push("n.date >= ?");
+      params.push(startDate);
+    }
+  
+    if (endDate) {
+      conditions.push("n.date <= ?");
+      params.push(endDate);
+    }
+  
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  
+    const query = `
+      SELECT n.*, GROUP_CONCAT(i.url) AS images
+      FROM news n
+      LEFT JOIN images i ON n.id = i.newsId
+      ${whereClause}
+      GROUP BY n.id
+      LIMIT ?, ?
+    `;
+    
+    params.push(offset, limit);
+  
+    const [rows] = await this.connection.query(query, params);
+  
+    // Agregar consulta para contar filas
+    const countQuery = `
+      SELECT COUNT(*) AS total
+      FROM news n
+      ${whereClause}
+    `;
+    
+    const [countResult] = await this.connection.query(countQuery, params.slice(0, -2)); // Eliminar offset y limit para contar todas las filas
+  
+    return {
+      news: rows.map((row) => ({
+        ...row,
+        images: row.images ? row.images.split(",") : [],
+      })),
+      total: countResult[0].total,
+    };
   }
+
 
   // Obtener una noticia por su ID
   async getNewsById(id) {
