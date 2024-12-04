@@ -116,7 +116,6 @@ class AuthController {
 
   // Restablecer contraseña
   async resetPassword(req, res) {
-    console.log('entre')
     try {
       const { token } = req.params;
       const { password } = req.body;
