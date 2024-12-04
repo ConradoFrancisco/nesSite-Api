@@ -7,7 +7,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import newsRouter from './routes/newsRouter.js';
 
-
 dotenv.config();
 
 const app = express();

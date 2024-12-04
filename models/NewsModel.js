@@ -28,7 +28,6 @@ class NewsModel {
         "INSERT INTO news (title, content,author,date) VALUES (?, ?, ?, ?)",
         [title, content,author,date]
       );
-
       return result.insertId;
     } catch (error) {
       console.error("Error al crear noticia:", error);
