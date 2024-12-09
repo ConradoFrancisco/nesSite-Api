@@ -11,6 +11,7 @@ const newsRouter = express.Router();
     NewsController.create(req, res, next));
   newsRouter.get('/', (req, res, next) => NewsController.getAll(req, res, next));
   newsRouter.delete('/:id', (req, res, next) => NewsController.deleteNew(req, res, next));
+  newsRouter.delete('/images', (req, res, next) => NewsController.deleteImage(req, res, next));
   newsRouter.put('/:id/status', (req, res, next) => NewsController.setStateNew(req, res, next));
   newsRouter.get('/:id', (req, res, next) => NewsController.getById(req, res, next));
   newsRouter.put("/:id", uploadMiddleware.array("images", 5), NewsController.update);
