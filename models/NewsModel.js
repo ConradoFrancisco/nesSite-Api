@@ -62,13 +62,22 @@ class NewsModel {
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
   
     const query = `
-      SELECT n.*, GROUP_CONCAT(i.url) AS images
-      FROM news n
-      LEFT JOIN images i ON n.id = i.newsId
-      ${whereClause}
-      GROUP BY n.id
-      LIMIT ?, ?
-      order by n.id desc
+      SELECT 
+    n.*, 
+    GROUP_CONCAT(i.url) AS images
+FROM 
+    news n
+LEFT JOIN 
+    images i 
+ON 
+    n.id = i.newsId
+${whereClause}
+GROUP BY 
+    n.id
+ORDER BY 
+    n.id DESC
+LIMIT 
+    ?, ?;
     `;
     
     params.push(offset, limit);
