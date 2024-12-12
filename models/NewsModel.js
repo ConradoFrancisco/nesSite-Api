@@ -68,7 +68,7 @@ class NewsModel {
       ${whereClause}
       GROUP BY n.id
       LIMIT ?, ?
-      order by id desc
+      order by n.id desc
     `;
     
     params.push(offset, limit);
