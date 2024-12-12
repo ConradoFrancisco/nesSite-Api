@@ -22,7 +22,7 @@ class AuthController {
     try {
       const { name, password } = req.body;
 
-      const user = await this.userModel.findByName(name);
+      const user = await this.userModel.findByEmail(name);
       if (!user) {
         return res.status(404).json({ message: "Usuario no encontrado" });
       }
