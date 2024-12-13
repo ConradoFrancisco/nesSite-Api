@@ -100,8 +100,8 @@ class AuthController {
         to: email,
         subject: "Restablecimiento de contraseña",
         html: `<p>Hola ${user.name},</p>
-               <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
-               <a href="${resetUrl}">${resetUrl}</a>
+               <p>Has solicitado restablecer tu contraseña del sitio web de gibson . Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
+               <a href="${resetUrl}">Restablecer contraseña</a>
                <p>Si no solicitaste este correo, puedes ignorarlo.</p>`,
       };
 
